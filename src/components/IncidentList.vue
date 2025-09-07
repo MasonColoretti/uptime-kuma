@@ -1,9 +1,16 @@
 <template>
-    <a v-if="incidentReports.length !== 0 && hideViewHistoryPage === false" :href="slug + '/incidents'">View all incidents</a>
+    <a v-if="incidentReports.length !== 0 && hideViewHistoryPage === false" :href="slug + '/incidents'">
+        {{ $t("View all incidents") }}
+    </a>
 
     <div v-if="incidentReports.length" class="incident-history">
         <div v-for="incident in incidentReports" :key="incident.id" class="incident-item">
             <div class="incident-timeline">
+                <div class="incident-timeline-line">
+                    <div class="incident-timeline-start"></div>
+                    <div class="incident-timeline-end"></div>
+                </div>
+                
                 <div class="incident-timeline-icon">
                     <font-awesome-icon :icon="incidentIcon[incident.style]" :class="incident.style"></font-awesome-icon>
                 </div>
@@ -18,11 +25,12 @@
                         <span v-if="incident.lastUpdatedDate">{{ $t("Last Updated") }}: {{ $root.datetime(incident.lastUpdatedDate) }} ({{ dateFromNow(incident.lastUpdatedDate) }})</span>
                     </div>
                 </div>
-                <p>{{ incident.content }}</p>
+                <p v-html="getIncidentHTML(incident)"></p>
+                <button v-if="editMode" class="btn btn-light me-2" :class="{'disabled':incident.pin}" @click="pinIncident(incident)">
+                    <font-awesome-icon icon="link"/>
+                    {{ incident.pin ? "Pinned!" : "Pin" }}
+                </button>
             </div>
-        </div>
-
-        <div class="incident-timeline-end">
         </div>
     </div>
     <p v-else>{{ $t("NoIncidentOrError") }}</p>
@@ -32,6 +40,8 @@
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import dayjs from "dayjs";
+import {marked} from "marked";
+import DOMPurify from "dompurify";
 
 export default {
     name: "IncidentList",
@@ -49,6 +59,10 @@ export default {
             type: Boolean,
         },
     },
+    
+    emits: [
+        "incident-pinned"
+    ],
 
     data() {
         return {
@@ -83,6 +97,7 @@ export default {
     },
 
     methods: {
+        marked,
         /**
          * Get the relative time difference of a date from now
          * @param {any} date Date to get time difference
@@ -148,7 +163,25 @@ export default {
                 console.error("Error fetching incident reports:", error);
                 this.isLoading = false;
             }
-        }
+        },
+
+        /**
+         * Pin the selected incident
+         * @returns {void}
+         */
+        pinIncident(incident) {
+            // assumed design; I am assuming, that the pinned incident has changed to this one.
+            this.incidentReports.filter((incidentReport) => { return incidentReport.pin === 1 })[0].pin = 0;
+            incident.pin = 1;
+            
+            // trying to update pinned incident & sending it to parent
+            this.$root.getSocket().emit("pinIncident", this.slug, incident);
+            this.$emit("incident-pinned", incident);
+        },
+        
+        getIncidentHTML(incident) {
+            return DOMPurify.sanitize(marked(incident.content));
+        },
     },
 };
 </script>
@@ -165,18 +198,41 @@ export default {
         display: flex;
 
         &:first-child .incident-timeline {
-            border-radius: 10px 10px 0 0;
+            .incident-timeline-line {
+                .incident-timeline-start {
+                    height: 50%;
+                    background-color: transparent;
+                }
+            }
         }
 
         &:last-child .incident-timeline {
-            border-radius: 0 0 10px 10px;
+            .incident-timeline-line {
+                .incident-timeline-end {
+                    height: 50%;
+                    width: 4px;
+
+                    border-left: 4px #f3f3f3 dashed;
+                    background-color: transparent;
+
+                    body.dark & {
+                        border-left-color: #191f29;
+                    }
+                }
+            }
         }
 
         .incident-timeline {
-            height: auto;
-            width: 4px;
 
-            background-color: #f3f3f3;
+            .incident-timeline-line {
+                height: 100%;
+
+                div {
+                    background-color: #f3f3f3;
+                    height: 50%;
+                    width: 4px;
+                }
+            }
 
             body.dark & {
                 background-color: #191f29;
@@ -184,8 +240,8 @@ export default {
 
             .incident-timeline-icon {
                 position: relative;
-                top: calc(50% - 14px);
-                left: calc(50% - 14px);
+                top: calc(-50% - 14px);
+                left: calc(-12px);
                 font-size: 24px;
                 line-height: 22px;
                 border-radius: 50%;
@@ -229,6 +285,7 @@ export default {
         }
 
         .incident-card {
+            flex: 1;
             width: 100%;
 
             box-shadow: 0 15px 70px rgba(0, 0, 0, 0.1);
@@ -252,21 +309,12 @@ export default {
             }
 
             p {
-                word-break: break-all;
+                word-break: break-word;
+                hyphens: auto;
             }
         }
     }
 
-    .incident-timeline-end {
-        height: 50px;
-        width: 4px;
-
-        border-left: 4px #f3f3f3 dashed;
-
-        body.dark & {
-            border-left-color: #191f29;
-        }
-    }
 }
 
 </style>

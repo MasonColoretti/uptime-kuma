@@ -90,6 +90,32 @@ module.exports.statusPageSocketHandler = (socket) => {
         }
     });
 
+    socket.on("pinIncident", async (slug, incident, callback) => {
+        try {
+            checkLogin(socket);
+
+            let statusPageID = await StatusPage.slugToID(slug);
+
+            await R.exec("UPDATE incident SET pin = 0 WHERE pin = 1 AND status_page_id = ? ", [
+                statusPageID
+            ]);
+
+            await R.exec("UPDATE incident SET pin = 1 WHERE id = ? AND status_page_id = ? ", [
+                incident.id,
+                statusPageID
+            ]);
+
+            callback({
+                ok: true,
+            });
+        } catch (error) {
+            callback({
+                ok: false,
+                msg: error.message,
+            })
+        }
+    })
+
     socket.on("getStatusPage", async (slug, callback) => {
         try {
             checkLogin(socket);

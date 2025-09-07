@@ -334,7 +334,7 @@
             <div class="mb-4">
                 <h2>{{ $t("Incident Reports") }}</h2>
 
-                <IncidentList :slug="slug" />
+                <IncidentList :slug="slug" :editMode="editMode" @incident-pinned="UpdatePinnedIncident"/>
             </div>
 
             <footer class="mt-5 mb-4">
@@ -747,6 +747,14 @@ export default {
         }
     },
     methods: {
+
+        /**
+         * Updates the displayed pinned incident.
+         * @param incidentToPin
+         */
+        UpdatePinnedIncident: function (incidentToPin) {
+            this.incident = incidentToPin;
+        },
 
         /**
          * Get status page data
