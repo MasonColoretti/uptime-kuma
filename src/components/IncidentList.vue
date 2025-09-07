@@ -28,7 +28,7 @@
                 <p v-html="getIncidentHTML(incident)"></p>
                 <button v-if="editMode" class="btn btn-light me-2" :class="{'disabled':incident.pin}" @click="pinIncident(incident)">
                     <font-awesome-icon icon="link"/>
-                    {{ incident.pin ? "Pinned!" : "Pin" }}
+                    {{ incident.pin ? $t("incident pinned") : $t("pin incident") }}
                 </button>
             </div>
         </div>
@@ -212,30 +212,29 @@ export default {
                     height: 50%;
                     width: 4px;
 
-                    border-left: 4px #f3f3f3 dashed;
+                    border-left: 4px var(--bs-gray-100) dashed;
                     background-color: transparent;
 
                     body.dark & {
-                        border-left-color: #191f29;
+                        border-left-color: var(--bs-gray-700);
                     }
                 }
             }
         }
 
         .incident-timeline {
-
             .incident-timeline-line {
                 height: 100%;
 
                 div {
-                    background-color: #f3f3f3;
+                    background-color: var(--bs-gray-100);
                     height: 50%;
                     width: 4px;
-                }
-            }
 
-            body.dark & {
-                background-color: #191f29;
+                    body.dark & {
+                        background-color: var(--bs-gray-700);
+                    }
+                }
             }
 
             .incident-timeline-icon {
@@ -245,27 +244,27 @@ export default {
                 font-size: 24px;
                 line-height: 22px;
                 border-radius: 50%;
-                border: solid 2px #e4e4e4;
+                border: solid 2px var(--bs-gray-300);
 
-                background-color: #e4e4e4;
+                background-color: var(--bs-gray-300);
                 width: 28px;
                 height: 28px;
 
                 body.dark & {
-                    border: solid 2px #444444;
-                    background-color: #444444;
+                    border: solid 2px var(--bs-gray-700);
+                    background-color: var(--bs-gray-700);
                 }
 
                 .primary {
-                    color: $primary;
+                    color: var(--bs-primary);
                 }
 
                 .warning {
-                    color: $warning;
+                    color: var(--bs-warning);
                 }
 
                 .danger {
-                    color: $danger;
+                    color: var(--bs-danger);
                 }
 
                 .info {
@@ -273,12 +272,12 @@ export default {
                 }
 
                 .light {
-                    color: #ffffff;
+                    color: var(--bs-white);
                 }
 
                 .dark {
-                    color: #444444;
-                    background-color: #e4e4e4;
+                    color: var(--bs-gray-dark);
+                    background-color: var(--bs-gray-300);
                     border-radius: 50%;
                 }
             }
@@ -294,7 +293,7 @@ export default {
             margin: 10px 10px 10px 24px;
 
             body.dark & {
-                background-color: #0d1117;
+                background-color: var(--bs-gray-900);
             }
 
             .incident-header {
@@ -314,7 +313,6 @@ export default {
             }
         }
     }
-
 }
 
 </style>
