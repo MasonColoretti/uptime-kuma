@@ -182,7 +182,6 @@ export default {
             })[0];
             pinnedIncident ? pinnedIncident.pin = 0 : null;
             incident.pin = 1;
-            
 
             // trying to update pinned incident & sending it to parent
             if ( this.$root.getSocket().emit("pinIncident", this.slug, incident)) {

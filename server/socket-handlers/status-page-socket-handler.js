@@ -116,7 +116,7 @@ module.exports.statusPageSocketHandler = (socket) => {
         }
     });
 
-    socket.on("deactivateIncident", async (incident, callback) => {
+    socket.on("deactivateIncident", async (incident) => {
         try {
             checkLogin(socket);
 
@@ -125,16 +125,7 @@ module.exports.statusPageSocketHandler = (socket) => {
             `, [
                 incident.id
             ]);
-
-            callback({
-                ok: true,
-            });
-        } catch (error) {
-            callback({
-                ok: false,
-                msg: error.message,
-            });
-        }
+        } catch (error) { }
     });
 
     socket.on("getStatusPage", async (slug, callback) => {
