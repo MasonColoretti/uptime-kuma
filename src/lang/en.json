@@ -290,6 +290,8 @@
     "delete incident question": "Are you sure you want to delete this incident?",
     "pin incident": "Pin",
     "incident pinned": "Pinned!",
+    "incident pinned successToast": "Incident pinned!",
+    "incident pinned errorToast": "Pinning incident failed!",
     "Incident Reports": "Incident Reports",
     "View all incidents": "View all incidents",
     "NoIncidentOrError": "No incident reports found or an error occurred.",

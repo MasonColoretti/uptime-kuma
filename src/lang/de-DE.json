@@ -330,8 +330,6 @@
     "Create Incident": "Vorfall erstellen",
     "delete incident": "Löschen",
     "delete incident question": "Bist du dir sicher, dass du diesen Vorfall löschen möchtest?",
-    "pin incident": "Pin",
-    "incident pinned": "Pinned!",
     "Incident Reports": "Vorfälle",
     "View all incidents": "Alle Vorfälle",
     "NoIncidentOrError": "Keine Vorfälle gefunden oder ein Fehler ist aufgetreten.",
