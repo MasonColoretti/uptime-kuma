@@ -90,6 +90,44 @@ module.exports.statusPageSocketHandler = (socket) => {
         }
     });
 
+    socket.on("pinIncident", async (slug, incident, callback) => {
+        try {
+            checkLogin(socket);
+
+            let statusPageID = await StatusPage.slugToID(slug);
+
+            await R.exec("UPDATE incident SET pin = 0 WHERE pin = 1 AND status_page_id = ? ", [
+                statusPageID
+            ]);
+
+            await R.exec("UPDATE incident SET pin = 1 WHERE id = ? AND status_page_id = ? ", [
+                incident.id,
+                statusPageID
+            ]);
+
+            callback({
+                ok: true,
+            });
+        } catch (error) {
+            callback({
+                ok: false,
+                msg: error.message,
+            });
+        }
+    });
+
+    socket.on("deactivateIncident", async (incident) => {
+        try {
+            checkLogin(socket);
+
+            await R.exec(`
+                UPDATE incident SET active = 0 WHERE incident.id = ?
+            `, [
+                incident.id
+            ]);
+        } catch (error) { }
+    });
+
     socket.on("getStatusPage", async (slug, callback) => {
         try {
             checkLogin(socket);
@@ -342,6 +380,8 @@ module.exports.statusPageSocketHandler = (socket) => {
                 await R.exec("DELETE FROM status_page WHERE id = ? ", [
                     statusPageID
                 ]);
+
+                apicache.clear();
 
             } else {
                 throw new Error("Status Page is not found");

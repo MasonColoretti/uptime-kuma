@@ -192,6 +192,10 @@ const routes = [
         component: StatusPage,
     },
     {
+        path: "/status/:slug/incidents",
+        component: ListIncidents,
+    },
+    {
         path: "/:pathMatch(.*)*",
         component: NotFound,
     },

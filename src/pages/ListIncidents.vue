@@ -1,79 +1,50 @@
-<template>
-    <div>
+<template :class="{'dark': this.isDarkMode()}">
+    <div class="incident-report-container">
         <h1>{{ $t("Incident Reports") }}</h1>
-        <div v-if="isLoading">Loading...</div>
-        <div v-else-if="filteredReports.length">
-            <div
-                v-for="report in filteredReports"
-                :key="report._id"
-                class="big-padding"
-            >
-                <h3>{{ datetimeFormat(report._createdDate) }}</h3>
-                <hr />
-                <h4>{{ report._title }}</h4>
-                <p>{{ report._content }}</p>
-                <hr />
-                <br /><br />
-            </div>
-        </div>
-        <p v-else>No incident reports found or an error occurred.</p>
+        <incident-list hideViewHistoryPage :slug="$route.params.slug" />
     </div>
 </template>
 
 <script>
+import IncidentList from "../components/IncidentList.vue";
+import axios from "axios";
+
 export default {
+    components: { IncidentList },
     data() {
         return {
-            incidentReports: [],
-            isLoading: false,
-            error: null,
+            slug: null,
+            theme: "",
         };
     },
-    computed: {
-        filteredReports() {
-            return this.incidentReports
-                .slice() // Create a copy to avoid mutating the original array
-                .sort(
-                    (a, b) =>
-                        new Date(b._createdDate) - new Date(a._createdDate),
-                )
-                .slice(-25); // Get the last 25 sorted reports
-        },
+
+    async mounted() {
+        this.slug = this.$route.params.slug;
+
+        let statusPageConfig = await axios.get("/api/status-page/" + this.slug);
+        this.theme = statusPageConfig.data.config.theme;
+
+        if (this.theme === "dark") {
+            document.body.classList.remove("light");
+            document.body.classList.add("dark");
+        } else if (this.theme === "auto") {
+            if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                document.body.classList.remove("light");
+                document.body.classList.add("dark");
+            }
+        }
     },
 
-    mounted() {
-        this.fetchIncidentReports();
-    },
     methods: {
-        async fetchIncidentReports() {
-            this.isLoading = true;
-            try {
-                const response = await fetch("/api/incident-reports"); // Replace with your API endpoint
-                const data = await response.json();
-                this.incidentReports = data;
-            } catch (error) {
-                this.error = error;
-                console.error("Error fetching incident reports:", error);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-    },
+        isDarkMode() {
+            return this.theme === "dark";
+        }
+    }
 };
 </script>
 <style>
 .incident-report-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Adjust gap between boxes */
+    padding: 32px;
 }
-
-.incident-report {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 </style>
 

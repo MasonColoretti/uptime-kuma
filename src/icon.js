@@ -50,6 +50,7 @@ import {
     faInfoCircle,
     faClone,
     faCertificate,
+    faCalendarAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -97,6 +98,9 @@ library.add(
     faInfoCircle,
     faClone,
     faCertificate,
+    faCalendarAlt,
+    faExclamationCircle,
+    faInfoCircle,
 );
 
 export { FontAwesomeIcon };

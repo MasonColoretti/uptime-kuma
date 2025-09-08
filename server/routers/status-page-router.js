@@ -62,6 +62,44 @@ router.get("/api/status-page/:slug", cache("5 minutes"), async (request, respons
     }
 });
 
+// get incidents for status page or incidents page
+router.get("/api/status-page/:slug/incidents", cache("1 minutes"), async (request, response) => {
+    allowDevAllOrigin(response);
+
+    let incidentReportList;
+
+    try {
+        let slug = request.params.slug;
+        slug = slug.toLowerCase();
+        let statusPageID = await StatusPage.slugToID(slug);
+
+        // get all incidents of the last 7 existing days
+        incidentReportList = await R.getAll(`
+            WITH last7days AS (
+                SELECT date(created_date) AS incident_day
+                FROM incident
+                WHERE incident.status_page_id = ? AND incident.active = 1
+                GROUP BY incident_day
+                ORDER BY incident_day DESC
+                LIMIT 7
+            )
+            SELECT *
+            FROM incident
+            WHERE date(created_date) IN (SELECT incident_day FROM last7days) AND incident.active = 1
+            ORDER BY created_date DESC;
+        `, [
+            statusPageID
+        ]);
+    } catch (error) {
+        sendHttpError(response, error.message);
+    }
+
+    response.json({
+        incidents: incidentReportList,
+        error: null,
+    });
+});
+
 // Status Page Polling Data
 // Can fetch only if published
 router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (request, response) => {
