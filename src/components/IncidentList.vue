@@ -10,7 +10,7 @@
                     <div class="incident-timeline-start"></div>
                     <div class="incident-timeline-end"></div>
                 </div>
-                
+
                 <div class="incident-timeline-icon">
                     <font-awesome-icon :icon="incidentIcon[incident.style]" :class="incident.style"></font-awesome-icon>
                 </div>
@@ -25,14 +25,15 @@
                         <span v-if="incident.lastUpdatedDate">{{ $t("Last Updated") }}: {{ $root.datetime(incident.lastUpdatedDate) }} ({{ dateFromNow(incident.lastUpdatedDate) }})</span>
                     </div>
                 </div>
+                <!-- eslint-disable-next-line vue/no-v-html-->
                 <p v-html="getIncidentHTML(incident)"></p>
                 <button v-if="editMode" class="btn btn-dynamic me-2" :class="{'disabled':incident.pin}" @click="pinIncident(incident)">
-                    <font-awesome-icon icon="link"/>
+                    <font-awesome-icon icon="link" />
                     {{ incident.pin ? $t("incident pinned") : $t("pin incident") }}
                 </button>
                 <button v-if="editMode" class="btn btn-dynamic me-2 delete" @click="deactivateIncident(incident)">
-                    <font-awesome-icon icon="trash"/>
-                    {{$t("delete incident") }}
+                    <font-awesome-icon icon="trash" />
+                    {{ $t("delete incident") }}
                 </button>
             </div>
         </div>
@@ -44,7 +45,7 @@
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import dayjs from "dayjs";
-import {marked} from "marked";
+import { marked } from "marked";
 import DOMPurify from "dompurify";
 
 export default {
@@ -63,7 +64,7 @@ export default {
             type: Boolean,
         },
     },
-    
+
     emits: [
         "incident-pinned"
     ],
@@ -171,14 +172,17 @@ export default {
 
         /**
          * Pin the selected incident
+         * @param {object} incident incident to pin
          * @returns {void}
          */
         pinIncident(incident) {
             // assumed design; I am assuming, that the pinned incident has changed to this one.
-            let pinnedIncident = this.incidentReports.filter((incidentReport) => { return incidentReport.pin === 1 })[0];
+            let pinnedIncident = this.incidentReports.filter((incidentReport) => {
+                return incidentReport.pin === 1;
+            })[0];
             pinnedIncident ? pinnedIncident.pin = 0 : null;
             incident.pin = 1;
-            
+
             // trying to update pinned incident & sending it to parent
             this.$root.getSocket().emit("pinIncident", this.slug, incident);
             this.$emit("incident-pinned", incident);
@@ -186,17 +190,18 @@ export default {
 
         /**
          * deactivate the selected incident
-         * @param incident
+         * @param {object} incident incident to deactivate
+         * @returns {void} Nothing is returned.
          */
         deactivateIncident(incident) {
             if (!confirm(this.$t("delete incident question"))) {
                 return;
             }
-            
+
             this.incidentReports.splice(this.incidentReports.indexOf(incident), 1);
 
             try {
-                this.$root.getSocket().emit("deactivateIncident", incident)
+                this.$root.getSocket().emit("deactivateIncident", incident);
             } catch (error) {
                 console.error(error);
             }
@@ -206,8 +211,8 @@ export default {
 
         /**
          * get the cleanup and converted content for displaying in html
-         * @param incident incident to convert
-         * @returns {string}
+         * @param {object} incident incident to convert
+         * @returns {string} sanitized markdown text
          */
         getIncidentHTML(incident) {
             return DOMPurify.sanitize(marked(incident.content));
@@ -222,16 +227,16 @@ export default {
 .btn-dynamic {
     background-color: var(--bs-gray-100);
     border: solid 2px var(--bs-gray-200);
-    transition: .5s filter, .5s background-color;
-    
+    transition: 0.5s filter, 0.5s background-color;
+
     &:hover {
         filter: brightness(90%);
-        
+
         &.delete {
-            background-color: oklch(0.8 0.15 20) !important;
+            background-color: oklch(0.8 0.15 20deg) !important;
         }
     }
-    
+
     body.dark & {
         color: var(--bs-gray-400);
         background-color: var(--bs-gray-700);
@@ -239,8 +244,9 @@ export default {
 
         &:hover {
             filter: brightness(120%);
+
             &.delete {
-                background-color: oklch(0.5 0.15 20) !important;
+                background-color: oklch(0.5 0.15 20deg) !important;
             }
         }
     }

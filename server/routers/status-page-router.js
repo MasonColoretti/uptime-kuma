@@ -89,7 +89,7 @@ router.get("/api/status-page/:slug/incidents", cache("1 minutes"), async (reques
             ORDER BY created_date DESC;
         `, [
             statusPageID
-        ])
+        ]);
     } catch (error) {
         sendHttpError(response, error.message);
     }

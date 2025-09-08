@@ -112,9 +112,9 @@ module.exports.statusPageSocketHandler = (socket) => {
             callback({
                 ok: false,
                 msg: error.message,
-            })
+            });
         }
-    })
+    });
 
     socket.on("deactivateIncident", async (incident, callback) => {
         try {
@@ -124,7 +124,7 @@ module.exports.statusPageSocketHandler = (socket) => {
                 UPDATE incident SET active = 0 WHERE incident.id = ?
             `, [
                 incident.id
-            ])
+            ]);
 
             callback({
                 ok: true,
@@ -133,9 +133,9 @@ module.exports.statusPageSocketHandler = (socket) => {
             callback({
                 ok: false,
                 msg: error.message,
-            })
+            });
         }
-    })
+    });
 
     socket.on("getStatusPage", async (slug, callback) => {
         try {
