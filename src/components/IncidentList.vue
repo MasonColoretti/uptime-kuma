@@ -175,7 +175,8 @@ export default {
          */
         pinIncident(incident) {
             // assumed design; I am assuming, that the pinned incident has changed to this one.
-            this.incidentReports.filter((incidentReport) => { return incidentReport.pin === 1 })[0].pin = 0;
+            let pinnedIncident = this.incidentReports.filter((incidentReport) => { return incidentReport.pin === 1 })[0];
+            pinnedIncident ? pinnedIncident.pin = 0 : null;
             incident.pin = 1;
             
             // trying to update pinned incident & sending it to parent
@@ -188,7 +189,7 @@ export default {
          * @param incident
          */
         deactivateIncident(incident) {
-            if (!confirm("Are you sure you want to deactivate this incident?")) {
+            if (!confirm(this.$t("delete incident question"))) {
                 return;
             }
             
@@ -199,6 +200,8 @@ export default {
             } catch (error) {
                 console.error(error);
             }
+
+            this.$emit("incident-pinned", null);
         },
 
         /**
