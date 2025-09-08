@@ -26,9 +26,13 @@
                     </div>
                 </div>
                 <p v-html="getIncidentHTML(incident)"></p>
-                <button v-if="editMode" class="btn btn-light me-2" :class="{'disabled':incident.pin}" @click="pinIncident(incident)">
+                <button v-if="editMode" class="btn btn-dynamic me-2" :class="{'disabled':incident.pin}" @click="pinIncident(incident)">
                     <font-awesome-icon icon="link"/>
                     {{ incident.pin ? $t("incident pinned") : $t("pin incident") }}
+                </button>
+                <button v-if="editMode" class="btn btn-dynamic me-2 delete" @click="deactivateIncident(incident)">
+                    <font-awesome-icon icon="trash"/>
+                    {{$t("delete incident") }}
                 </button>
             </div>
         </div>
@@ -178,7 +182,30 @@ export default {
             this.$root.getSocket().emit("pinIncident", this.slug, incident);
             this.$emit("incident-pinned", incident);
         },
-        
+
+        /**
+         * deactivate the selected incident
+         * @param incident
+         */
+        deactivateIncident(incident) {
+            if (!confirm("Are you sure you want to deactivate this incident?")) {
+                return;
+            }
+            
+            this.incidentReports.splice(this.incidentReports.indexOf(incident), 1);
+
+            try {
+                this.$root.getSocket().emit("deactivateIncident", incident)
+            } catch (error) {
+                console.error(error);
+            }
+        },
+
+        /**
+         * get the cleanup and converted content for displaying in html
+         * @param incident incident to convert
+         * @returns {string}
+         */
         getIncidentHTML(incident) {
             return DOMPurify.sanitize(marked(incident.content));
         },
@@ -188,6 +215,33 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/vars.scss";
+
+.btn-dynamic {
+    background-color: var(--bs-gray-100);
+    border: solid 2px var(--bs-gray-200);
+    transition: .5s filter, .5s background-color;
+    
+    &:hover {
+        filter: brightness(90%);
+        
+        &.delete {
+            background-color: oklch(0.8 0.15 20) !important;
+        }
+    }
+    
+    body.dark & {
+        color: var(--bs-gray-400);
+        background-color: var(--bs-gray-700);
+        border: solid 2px var(--bs-gray-600);
+
+        &:hover {
+            filter: brightness(120%);
+            &.delete {
+                background-color: oklch(0.5 0.15 20) !important;
+            }
+        }
+    }
+}
 
 .incident-history {
     display: flex;

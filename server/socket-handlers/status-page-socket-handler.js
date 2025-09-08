@@ -116,6 +116,27 @@ module.exports.statusPageSocketHandler = (socket) => {
         }
     })
 
+    socket.on("deactivateIncident", async (incident, callback) => {
+        try {
+            checkLogin(socket);
+
+            await R.exec(`
+                UPDATE incident SET active = 0 WHERE incident.id = ?
+            `, [
+                incident.id
+            ])
+
+            callback({
+                ok: true,
+            });
+        } catch (error) {
+            callback({
+                ok: false,
+                msg: error.message,
+            })
+        }
+    })
+
     socket.on("getStatusPage", async (slug, callback) => {
         try {
             checkLogin(socket);

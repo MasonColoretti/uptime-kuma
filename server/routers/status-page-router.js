@@ -78,14 +78,14 @@ router.get("/api/status-page/:slug/incidents", cache("1 minutes"), async (reques
             WITH last7days AS (
                 SELECT date(created_date) AS incident_day
                 FROM incident
-                WHERE incident.status_page_id = ?
+                WHERE incident.status_page_id = ? AND incident.active = 1
                 GROUP BY incident_day
                 ORDER BY incident_day DESC
                 LIMIT 7
             )
             SELECT *
             FROM incident
-            WHERE date(created_date) IN (SELECT incident_day FROM last7days)
+            WHERE date(created_date) IN (SELECT incident_day FROM last7days) AND incident.active = 1
             ORDER BY created_date DESC;
         `, [
             statusPageID
@@ -96,7 +96,6 @@ router.get("/api/status-page/:slug/incidents", cache("1 minutes"), async (reques
 
     response.json({
         incidents: incidentReportList,
-        isLoading: false,
         error: null,
     });
 });
